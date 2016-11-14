@@ -1,5 +1,6 @@
 import ConfigParser
 import os, sys, time
+import shutil
 from stat import * # ST_SIZE etc
 
 def folderList(path,level,days):
@@ -10,14 +11,20 @@ def folderList(path,level,days):
 			if os.path.isfile(path+i) == True :
 				print level,'File: ',i
 				st = os.stat(path+i)
-				ti = time.time() - st[ST_ATIME]
-				print ti
-				print days*60
-				if(ti > days*60):
-					print 'file to be removed'
+				ti = time.time() - st[ST_MTIME]
+				if(ti > int(days)*60*60*24):
+					try:
+						os.remove(path+i)
+						print 'file is removed'
+					except OSError, e:
+						print ("Error: %s - %s." % (e.filename,e.strerror))
 			elif os.path.isdir(path+i) == True :
 				print level,'Directory: ',i
 				folderList(path+i,level+'---',days)
+				try:
+				    os.rmdir(path + i)
+				except OSError as ex:
+				    print "directory not empty"
 			else:
 				print level,'Unknown: ',i
 
@@ -25,7 +32,6 @@ def folderList(path,level,days):
 if __name__ == '__main__':
 	config = ConfigParser.ConfigParser()
 	config.read('fileCleaner.ini')
-	print config.sections()
 	folderName =  config.get('main','foldername')
-	days = config.get('main','daysback')
-	folderList(folderName,'---',days)
+	da = config.get('main','daysback')
+	folderList(folderName,'---',da)
