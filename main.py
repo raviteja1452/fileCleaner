@@ -1,7 +1,7 @@
 import ConfigParser
 import os, sys, time
 import shutil
-from stat import * # ST_SIZE etc
+from stat import * 
 
 def folderList(path,level,days):
 	if os.path.isdir(path) == True:
